@@ -1,0 +1,988 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'">
+<title>Billing Record: Phase 1 plan</title>
+<style>
+:root {
+  --bg: #f6f6f3;
+  --surface: #ffffff;
+  --text: #1d1d1b;
+  --muted: #5a5a55;
+  --line: #d9d9d2;
+  --accent: #2c5a88;
+  --accent-text: #ffffff;
+  --fs-title: clamp(1.5rem, 1rem + 1.5vw, 2.75rem);
+  --fs-body: clamp(1rem, 0.85rem + 0.44vw, 1.375rem);
+  --fs-small: clamp(0.875rem, 0.8rem + 0.15vw, 1.125rem);
+  --gap: clamp(16px, 1.2vw, 24px);
+  --pad: clamp(16px, 2.5vw, 48px);
+  --radius: 6px;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #131315;
+    --surface: #1c1c1f;
+    --text: #ececea;
+    --muted: #a6a6a0;
+    --line: #35353b;
+    --accent: #8fb6e3;
+    --accent-text: #101012;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #131315;
+  --surface: #1c1c1f;
+  --text: #ececea;
+  --muted: #a6a6a0;
+  --line: #35353b;
+  --accent: #8fb6e3;
+  --accent-text: #101012;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: light dark;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: var(--fs-body);
+  line-height: 1.55;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.2;
+  margin: 0 0 var(--gap);
+}
+
+h1,
+h2 {
+  font-size: var(--fs-title);
+}
+
+h3 {
+  font-size: var(--fs-body);
+}
+
+p {
+  margin: 0 0 var(--gap);
+}
+
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.bar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px var(--gap);
+  padding: 10px var(--gap);
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  font-size: var(--fs-small);
+}
+
+.bar .count {
+  color: var(--muted);
+}
+
+.bar .nav {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+}
+
+button {
+  font: inherit;
+  font-size: var(--fs-small);
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 6px 12px;
+  min-height: 36px;
+  cursor: pointer;
+}
+
+button:hover {
+  border-color: var(--accent);
+}
+
+.bar .nav {
+  align-items: center;
+}
+
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 6px;
+  border: 0;
+  background: transparent;
+}
+
+html:not(.js) .switch {
+  display: none;
+}
+
+.switch-track {
+  position: relative;
+  flex: none;
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  background: var(--muted);
+  transition: background 0.15s;
+}
+
+.switch-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--surface);
+  transition: transform 0.15s;
+}
+
+.switch[aria-checked="true"] .switch-track {
+  background: var(--accent);
+}
+
+.switch[aria-checked="true"] .switch-knob {
+  transform: translateX(20px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .switch-track,
+  .switch-knob {
+    transition: none;
+  }
+}
+
+.toc {
+  position: relative;
+}
+
+.toc summary {
+  cursor: pointer;
+  padding: 6px 0;
+}
+
+.toc ol {
+  position: absolute;
+  left: 0;
+  top: 100%;
+  z-index: 6;
+  margin: 4px 0 0;
+  padding: 8px 8px 8px 32px;
+  width: min(320px, calc(100vw - 2 * var(--gap)));
+  max-height: 70vh;
+  overflow: auto;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.toc a {
+  display: block;
+  padding: 4px 0;
+  color: var(--accent);
+}
+
+#deck {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: var(--gap);
+}
+
+.slide {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 24px var(--pad);
+  margin-bottom: 0;
+  scroll-margin-top: 80px;
+}
+
+@media (min-width: 720px) {
+  .js .slide.active {
+    min-height: calc(100vh - 120px);
+  }
+}
+
+.js .slide:not(.active) {
+  display: none;
+}
+
+.src {
+  margin: var(--gap) 0 0;
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+
+th.src,
+td.src {
+  margin: 0;
+  width: 14%;
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--muted);
+  opacity: 0.85;
+  overflow-wrap: anywhere;
+}
+
+td.path {
+  min-width: 7em;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 719px) {
+  #deck {
+    padding: 8px;
+  }
+
+  .slide {
+    padding: 20px 12px;
+  }
+
+  th,
+  td {
+    padding: 6px 4px;
+  }
+
+  th.src,
+  td.src {
+    width: 22%;
+    min-width: 5.5em;
+    font-size: 0.6875rem;
+  }
+}
+
+.card h3 {
+  margin-bottom: 8px;
+}
+
+.card ul {
+  margin: 0;
+  padding-left: 1.2em;
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
+@media (min-width: 720px) {
+  .steps {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+}
+
+.step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: var(--gap);
+  padding-top: calc(var(--gap) + 18px);
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--accent);
+  border-radius: var(--radius);
+  counter-increment: step;
+}
+
+.step::before {
+  content: "Step " counter(step);
+  position: absolute;
+  top: 6px;
+  left: var(--gap);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.step .src {
+  margin: 0;
+}
+
+table + h3 {
+  margin-top: calc(var(--gap) * 1.5);
+}
+
+td ul {
+  margin: 0;
+  padding-left: 1.2em;
+}
+
+.impact {
+  display: inline-block;
+  padding: 2px 8px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.impact-high {
+  color: #b3261e;
+}
+
+.impact-med {
+  color: #8a5a00;
+}
+
+.impact-low {
+  color: #2d6a3a;
+}
+
+:root[data-theme="dark"] .impact-high {
+  color: #ff9a92;
+}
+
+:root[data-theme="dark"] .impact-med {
+  color: #f0c36a;
+}
+
+:root[data-theme="dark"] .impact-low {
+  color: #8fd19e;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .impact-high {
+    color: #ff9a92;
+  }
+
+  :root:not([data-theme="light"]) .impact-med {
+    color: #f0c36a;
+  }
+
+  :root:not([data-theme="light"]) .impact-low {
+    color: #8fd19e;
+  }
+}
+
+.wireframes {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gap);
+}
+
+@media (min-width: 720px) {
+  .wireframes {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.wireframe {
+  margin: 0;
+}
+
+.wireframe figcaption {
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.wf-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border: 2px dashed var(--muted);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--line) 35%, transparent);
+  font-size: var(--fs-small);
+}
+
+.wf-note {
+  margin: 8px 0 0;
+  font-size: var(--fs-small);
+  font-style: italic;
+  color: var(--muted);
+}
+
+.wf-block {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--muted);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.wf-header {
+  font-weight: 700;
+  background: var(--line);
+}
+
+.wf-button {
+  justify-content: center;
+  align-self: flex-start;
+  padding: 8px 20px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.wf-image {
+  min-height: 90px;
+  align-items: center;
+  justify-content: center;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--surface),
+    var(--surface) 10px,
+    var(--line) 10px,
+    var(--line) 11px
+  );
+}
+
+.wf-item {
+  flex: 1 1 5em;
+  padding: 8px;
+  border: 1px solid var(--muted);
+  border-radius: 4px;
+  text-align: center;
+}
+
+.wf-field {
+  flex: 1 1 100%;
+  padding: 8px;
+  border: 1px solid var(--muted);
+  border-radius: 4px;
+  color: var(--muted);
+}
+
+.wf-caption {
+  flex: 1 1 100%;
+  font-weight: 600;
+}
+
+.wf-line {
+  flex: 1 1 100%;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--line);
+}
+
+.wf-bars {
+  display: flex;
+  flex: 1 1 100%;
+  align-items: flex-end;
+  gap: 6px;
+  height: 70px;
+}
+
+.wf-bars i {
+  flex: 1;
+  background: var(--muted);
+  border-radius: 2px 2px 0 0;
+}
+
+.design {
+  margin: 0;
+}
+
+.design img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+}
+
+.design figcaption {
+  margin-top: 8px;
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+
+.diagram .mermaid {
+  margin: 0;
+  overflow-x: auto;
+  text-align: center;
+}
+
+.diagram .mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+
+html:not(.js) .diagram .mermaid,
+.js .diagram:not([data-state]) .mermaid,
+.js .diagram[data-state="failed"] .mermaid,
+.diagram .mermaid-print {
+  display: none;
+}
+
+.js .diagram:not([data-state])::before {
+  content: "Drawing the diagram...";
+  display: block;
+  color: var(--muted);
+}
+
+html:not(.js) .diagram-fallback[hidden] {
+  display: block;
+}
+
+.tagline {
+  color: var(--muted);
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gap);
+}
+
+@media (min-width: 720px) {
+  .slide {
+    padding: calc(var(--pad) * 0.75) var(--pad);
+  }
+
+  .cards {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--gap);
+}
+
+.card .id {
+  display: inline-block;
+  margin-bottom: 8px;
+  font-size: var(--fs-small);
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.card p {
+  margin-bottom: 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-small);
+}
+
+th,
+td {
+  text-align: left;
+  padding: 8px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+  overflow-wrap: break-word;
+}
+
+tbody tr:nth-child(even) {
+  background: color-mix(in srgb, var(--line) 25%, transparent);
+}
+
+table.grouped tbody tr:nth-child(even) {
+  background: none;
+}
+
+table.grouped tr.group-start td {
+  border-top: 2px solid var(--line);
+}
+
+table.grouped td[rowspan] {
+  min-width: 6em;
+  font-weight: 600;
+}
+
+.checks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.checks li {
+  padding: 6px 0;
+}
+
+.checks label {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  cursor: pointer;
+}
+
+.checks input {
+  width: 20px;
+  height: 20px;
+  margin-top: 3px;
+  flex: none;
+  accent-color: var(--accent);
+}
+
+@media print {
+  /* Print is always light, whatever theme the screen is in. */
+  :root,
+  :root[data-theme="dark"],
+  :root:not([data-theme="light"]) {
+    --bg: #fff;
+    --surface: #fff;
+    --text: #000;
+    --muted: #444;
+    --line: #bbb;
+    --accent: #1f4a75;
+    --accent-text: #fff;
+  }
+
+  .impact-high,
+  :root[data-theme="dark"] .impact-high,
+  :root:not([data-theme="light"]) .impact-high {
+    color: #b3261e;
+  }
+
+  .impact-med,
+  :root[data-theme="dark"] .impact-med,
+  :root:not([data-theme="light"]) .impact-med {
+    color: #8a5a00;
+  }
+
+  .impact-low,
+  :root[data-theme="dark"] .impact-low,
+  :root:not([data-theme="light"]) .impact-low {
+    color: #2d6a3a;
+  }
+
+  .diagram .mermaid {
+    display: none !important;
+  }
+
+  .diagram[data-state="drawn"] .mermaid-print {
+    display: block;
+    text-align: center;
+  }
+
+  .mermaid-print svg {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .bar {
+    display: none;
+  }
+
+  body {
+    background: #fff;
+    color: #000;
+  }
+
+  #deck {
+    max-width: none;
+    padding: 0;
+  }
+
+  .js .slide:not(.active),
+  .slide {
+    display: block;
+    border: 0;
+    break-after: page;
+    page-break-after: always;
+  }
+}
+
+</style>
+</head>
+<body>
+<header class="bar">
+  <details class="toc">
+    <summary>Contents</summary>
+    <ol>
+      <li><a href="#s-title">Overview</a></li>
+      <li><a href="#s-goal">The goal</a></li>
+      <li><a href="#s-flow">Build order (simplified)</a></li>
+      <li><a href="#s-phases">Delivery phases</a></li>
+      <li><a href="#s-tasks">Tasks by phase</a></li>
+      <li><a href="#s-tasks-2">Tasks by phase (continued)</a></li>
+      <li><a href="#s-tasks-3">Tasks by phase (continued)</a></li>
+      <li><a href="#s-checkpoints">Checkpoints you approve</a></li>
+      <li><a href="#s-risks">Risks and how they are handled</a></li>
+      <li><a href="#s-rules">Rules the AI follows</a></li>
+      <li><a href="#s-decisions">Decisions already made</a></li>
+      <li><a href="#s-notes">How it is built</a></li>
+      <li><a href="#s-check">Please check</a></li>
+    </ol>
+  </details>
+  <span class="count" id="count" aria-live="polite"></span>
+  <div class="nav">
+    <button type="button" id="prev">Previous</button>
+    <button type="button" id="next">Next</button>
+    <button type="button" id="theme" class="switch" role="switch" aria-checked="false">
+      <span class="switch-label">Dark mode</span>
+      <span class="switch-track" aria-hidden="true"><span class="switch-knob"></span></span>
+    </button>
+  </div>
+</header>
+<main id="deck">
+<section class="slide" id="s-title"><h1>Billing Record: Phase 1 plan</h1><p class="tagline">How the local version of the app will be built, step by step.</p><p>Plan approved, build not started · 2026-10-14</p><h3>This summary covers</h3><table><thead><tr><th>File</th><th>Last changed</th><th>Contains</th></tr></thead><tbody><tr><td class="path">tasks/plan.md</td><td>2026-10-14</td><td>overview, build decisions, build order, rules for building, risks, decisions</td></tr><tr><td class="path">tasks/todo.md</td><td>2026-10-14</td><td>phases, tasks, checkpoints</td></tr></tbody></table></section>
+<section class="slide" id="s-goal"><h2>The goal</h2><p>Build the full single-user billing app on your PC. Records can be added by hand, or from a photo of a slip or bill that the AI reads. Every record is converted to THB, and the app shows totals and charts, with CSV export.</p><p>The app runs on your PC and over your home network, so your phone camera can be used.</p><p>Each step delivers something you can see working. The riskiest unknown, how well the AI reads Thai slips, is tested in step 2, before the rest of the app is built around it.</p><p class="src">Source: tasks/plan.md &gt; Overview</p></section>
+<section class="slide" id="s-flow"><h2>Build order (simplified)</h2><div class="diagram"><pre class="mermaid">flowchart TB
+  n_A[&quot;A: Foundation&quot;]
+  n_B[&quot;B: Records&quot;]
+  n_C[&quot;C: Insights&quot;]
+  n_D[&quot;D: Capture&quot;]
+  n_E[&quot;E: Finish&quot;]
+  n_Done[&quot;Phase 1 complete, you approve&quot;]
+  n_A --&gt; n_B
+  n_B --&gt; n_C
+  n_C --&gt; n_D
+  n_D --&gt; n_E
+  n_E --&gt; n_Done</pre><div class="mermaid-print" aria-hidden="true"></div><div class="diagram-fallback" hidden><p>The picture could not be drawn here. The same information as a list:</p><p>Parts: A: Foundation, B: Records, C: Insights, D: Capture, E: Finish, Phase 1 complete, you approve</p><table><thead><tr><th>From</th><th>To</th><th>What happens</th></tr></thead><tbody><tr><td>A: Foundation</td><td>B: Records</td><td></td></tr><tr><td>B: Records</td><td>C: Insights</td><td></td></tr><tr><td>C: Insights</td><td>D: Capture</td><td></td></tr><tr><td>D: Capture</td><td>E: Finish</td><td></td></tr><tr><td>E: Finish</td><td>Phase 1 complete, you approve</td><td></td></tr></tbody></table></div></div><p class="src">Source: tasks/plan.md &gt; Dependency Graph</p></section>
+<section class="slide" id="s-phases"><h2>Delivery phases</h2><ol class="steps"><li class="step"><strong>Phase A: Foundation</strong><span class="src">Source: tasks/todo.md &gt; Phase A: Foundation</span></li><li class="step"><strong>Phase B: Records</strong><span class="src">Source: tasks/todo.md &gt; Phase B: Records</span></li><li class="step"><strong>Phase C: Insights</strong><span class="src">Source: tasks/todo.md &gt; Phase C: Insights</span></li><li class="step"><strong>Phase D: Capture</strong><span class="src">Source: tasks/todo.md &gt; Phase D: Capture</span></li><li class="step"><strong>Phase E: Finish</strong><span class="src">Source: tasks/todo.md &gt; Phase E: Finish</span></li></ol></section>
+<section class="slide" id="s-tasks"><h2>Tasks by phase</h2><h3>Phase A: Foundation</h3><table><thead><tr><th>Task</th><th>What you will see working</th><th class="src">Source</th></tr></thead><tbody><tr><td>Scaffold project and tooling</td><td>A placeholder home page opens in your browser. The database library is proven to work on your computer, and no private files are staged.</td><td class="src">tasks/todo.md &gt; Task 1: Scaffold project and tooling</td></tr><tr><td>Extraction spike (AI reads a slip)</td><td>With your approval, the AI reads 3-5 of your real slips and prints the amount, currency and date. The key stays on the server only.</td><td class="src">tasks/todo.md &gt; Task 2: Extraction spike (Claude reads a slip)</td></tr><tr><td>Database layout, setup and default categories</td><td>A fresh database is created with the 13 default categories. Running the setup twice still gives 13.</td><td class="src">tasks/todo.md &gt; Task 3: Database schema, migrations and category seed</td></tr></tbody></table><h3>Phase B: Records</h3><table><thead><tr><th>Task</th><th>What you will see working</th><th class="src">Source</th></tr></thead><tbody><tr><td>Money and validation utilities</td><td>Tested rules: amounts like 1,234.50 are read correctly, THB conversion rounds half up, and bad amounts, currencies, dates and directions are rejected.</td><td class="src">tasks/todo.md &gt; Task 4: Money and validation utilities</td></tr><tr><td>Add a THB record by hand and see it in the list</td><td>You add an income or expense record and it appears at the top of the list. Bad input shows an error next to the field. Records are still there after a restart.</td><td class="src">tasks/todo.md &gt; Task 5: Add a THB record by hand and see it in the list</td></tr><tr><td>Edit and delete a record</td><td>You change any field and the list shows it. Delete asks you to confirm, and cancel keeps the record.</td><td class="src">tasks/todo.md &gt; Task 6: Edit and delete a record</td></tr><tr><td>Manage categories</td><td>You add and rename categories. Removing one that is in use asks for a replacement and moves its records first.</td><td class="src">tasks/todo.md &gt; Task 7: Manage categories</td></tr><tr><td>Foreign-currency records with automatic THB rate</td><td>A USD record gets a rate and a THB amount automatically. You can override the rate. If the rate cannot be found, saving waits until you enter one.</td><td class="src">tasks/todo.md &gt; Task 8: Foreign-currency records with automatic THB rate</td></tr></tbody></table></section>
+<section class="slide" id="s-tasks-2"><h2>Tasks by phase (continued)</h2><h3>Phase C: Insights</h3><table><thead><tr><th>Task</th><th>What you will see working</th><th class="src">Source</th></tr></thead><tbody><tr><td>Dashboard totals for a period</td><td>Total income, total expense and net for the chosen period, matching a hand calculation. An empty period shows zeros, not an error.</td><td class="src">tasks/todo.md &gt; Task 9: Dashboard totals for a period</td></tr><tr><td>Category donut and monthly bar charts</td><td>A donut of expenses with 5 named slices plus Other, and a bar chart that always shows 6 months. Both are readable on a phone.</td><td class="src">tasks/todo.md &gt; Task 10: Category donut and monthly bar charts</td></tr><tr><td>Filters for list and dashboard</td><td>Filters narrow the list, totals and charts the same way. They survive a reload, and a Clear control resets them.</td><td class="src">tasks/todo.md &gt; Task 11: Filters for list and dashboard</td></tr></tbody></table><h3>Phase D: Capture</h3><table><thead><tr><th>Task</th><th>What you will see working</th><th class="src">Source</th></tr></thead><tbody><tr><td>Upload or photograph an image and store it</td><td>JPEG, PNG, WebP and HEIC images upload and display. Files over 10 MB or that are not images are rejected with a clear message.</td><td class="src">tasks/todo.md &gt; Task 12: Upload or photograph an image and store it</td></tr><tr><td>Read, review and save a record from an image</td><td>After an upload, a pre-filled form opens within 15 seconds. Saving creates one record linked to the image. Leaving without saving creates nothing.</td><td class="src">tasks/todo.md &gt; Task 13: Extract, review and save a record from an image</td></tr><tr><td>Duplicate warning</td><td>Saving the same slip twice shows a warning the second time. Records with no slip reference never trigger it.</td><td class="src">tasks/todo.md &gt; Task 14: Duplicate warning</td></tr></tbody></table></section>
+<section class="slide" id="s-tasks-3"><h2>Tasks by phase (continued)</h2><h3>Phase E: Finish</h3><table><thead><tr><th>Task</th><th>What you will see working</th><th class="src">Source</th></tr></thead><tbody><tr><td>CSV export</td><td>A file that opens in Excel with Thai text intact. Its THB total equals the dashboard total for the same filters.</td><td class="src">tasks/todo.md &gt; Task 15: CSV export</td></tr><tr><td>Design, empty, loading and error states, plus accessibility pass</td><td>Every screen has designed empty, loading and error states, and works with the keyboard alone. You sign off on the look.</td><td class="src">tasks/todo.md &gt; Task 16: Design, empty, loading and error states, plus accessibility pass</td></tr><tr><td>Full automatic test run, phone check and coverage</td><td>All end-to-end tests pass on desktop and phone sizes, at least 80% of the core code is covered by tests, and you photograph a bill on your phone and save it in under 30 seconds.</td><td class="src">tasks/todo.md &gt; Task 17: Full E2E suite, phone-over-LAN check and coverage</td></tr></tbody></table></section>
+<section class="slide" id="s-checkpoints"><h2>Checkpoints you approve</h2><table><thead><tr><th>Checkpoint</th><th>You check</th><th class="src">Source</th></tr></thead><tbody><tr><td><strong>Checkpoint A</strong><br>A</td><td><ul><li>The automatic checks and the build pass.</li><li>You review the spike results: go on, or change the instructions or the AI model.</li></ul></td><td class="src">tasks/todo.md &gt; Checkpoint A</td></tr><tr><td><strong>Checkpoint B</strong><br>B</td><td><ul><li>The automatic checks and the build pass, and all end-to-end tests so far pass.</li><li>Adding, editing, deleting, categories and foreign currency all work, and survive a restart.</li><li>You review the look of the list and form.</li></ul></td><td class="src">tasks/todo.md &gt; Checkpoint B</td></tr><tr><td><strong>Checkpoint C</strong><br>C</td><td><ul><li>The automatic checks and the build pass.</li><li>Success criterion 4: dashboard THB totals match a hand calculation, including foreign-currency records.</li></ul></td><td class="src">tasks/todo.md &gt; Checkpoint C</td></tr><tr><td><strong>Checkpoint D</strong><br>D</td><td><ul><li>The automatic checks and the build pass.</li><li>Success criterion 2: a real run on 10 samples, after you approve the cost. Amount, currency and date are right on at least 9, and the category is sensible on at least 8. Results are recorded.</li><li>Success criterion 5: a Thai slip dated in the Buddhist Era saves with the correct Western date.</li></ul></td><td class="src">tasks/todo.md &gt; Checkpoint D</td></tr><tr><td><strong>Checkpoint: Phase 1 complete</strong><br>E</td><td><ul><li>Spec success criteria 1-8 all pass.</li><li>The project history has no secrets or personal data (success criterion 8).</li><li>You approve. Next step: plan Phase 2 (Railway).</li></ul></td><td class="src">tasks/todo.md &gt; Checkpoint: Phase 1 complete</td></tr></tbody></table></section>
+<section class="slide" id="s-risks"><h2>Risks and how they are handled</h2><table><thead><tr><th>Risk</th><th>Impact</th><th>Handled by</th><th class="src">Source</th></tr></thead><tbody><tr><td>The AI misreads Thai slips (amount, Buddhist Era date, income or expense).</td><td><span class="impact impact-high">High</span></td><td>Test on your real slips in step 2, before building the flow. You always review before saving. The instructions are tuned in the spike.</td><td class="src">tasks/plan.md &gt; Risks and Mitigations</td></tr><tr><td>HEIC photos may not open, and the AI service does not accept HEIC.</td><td><span class="impact impact-med">Med</span></td><td>iPhones usually convert to JPEG on upload. Step 12 tests a real HEIC file. If it fails, a new software package is added, after asking you.</td><td class="src">tasks/plan.md &gt; Risks and Mitigations</td></tr><tr><td>The database library may not install on your Node 24 and Windows setup.</td><td><span class="impact impact-med">Med</span></td><td>Step 1 installs it and runs a test first. Fallback: use Node 22 instead.</td><td class="src">tasks/plan.md &gt; Risks and Mitigations</td></tr><tr><td>The exchange rate service lacks a currency or a weekend date.</td><td><span class="impact impact-low">Low</span></td><td>Weekend dates use the previous working day&#x27;s rate. An unsupported currency means you enter the rate by hand.</td><td class="src">tasks/plan.md &gt; Risks and Mitigations</td></tr><tr><td>Windows Firewall blocks the phone from reaching the app.</td><td><span class="impact impact-low">Low</span></td><td>Step 17 writes the firewall rule into the README.</td><td class="src">tasks/plan.md &gt; Risks and Mitigations</td></tr><tr><td>Repeated real AI runs cost too much.</td><td><span class="impact impact-low">Low</span></td><td>Real calls happen only through one script, always with your approval. Automatic tests use a fake AI.</td><td class="src">tasks/plan.md &gt; Risks and Mitigations</td></tr><tr><td>Your real slips leak into the public repository.</td><td><span class="impact impact-high">High</span></td><td>Real samples stay in a folder that Git ignores. Test files use made-up slips only. What is about to be pushed is checked every time.</td><td class="src">tasks/plan.md &gt; Risks and Mitigations</td></tr></tbody></table></section>
+<section class="slide" id="s-rules"><h2>Rules the AI follows</h2><div class="cards"><div class="card"><h3>Always</h3><ul><li>Work with one agent, one task at a time, in task order.</li><li>For each task: build it, run the automatic checks, check it in the running app, tick it off in the task list, then save a commit with nothing sensitive included.</li><li>Run a code review after every checkpoint, and fix or log its findings before the next phase.</li><li>Run a security review at Checkpoint D and when Phase 1 is complete, and a test review when Phase 1 is complete.</li><li>Hand off at a task boundary, about every 20-25 turns. The new session reads the newest handoff, then the task list, then the project status.</li></ul></div><div class="card"><h3>Asks you first</h3><ul><li>Real AI calls.</li><li>A new software package.</li><li>A database layout change after the first version.</li><li>Anything that exposes the app beyond the home network.</li></ul></div><div class="card"><h3>Never</h3><ul><li>Run several builder agents in parallel, because steps 6, 7 and 8 edit the same files and share one database layout.</li></ul></div></div><p class="src">Source: tasks/plan.md &gt; How to Build</p></section>
+<section class="slide" id="s-decisions"><h2>Decisions already made</h2><table><thead><tr><th>Decision</th><th class="src">Source</th></tr></thead><tbody><tr><td>Sample slips: you add real slips and bills to a private folder, 3-5 before step 2 and about 10 in total by Checkpoint D. They are never committed.</td><td class="src">tasks/plan.md &gt; Decisions</td></tr><tr><td>API key: you already have one and paste it into the private settings file at step 2. The exact price per image is checked before the first paid run.</td><td class="src">tasks/plan.md &gt; Decisions</td></tr></tbody></table></section>
+<section class="slide" id="s-notes"><h2>How it is built</h2><p>Pages read records straight from the database. Changes (add, edit, delete) go through separate entry points, so they can be tested without the screens and reused in Phase 2. One set of rules per kind of record is shared by the form, the entry points and the AI result reader.</p><p>Money is stored as whole numbers of the smallest unit, and rates as decimal text. Converting to THB is one function that rounds half up, run when you save. All file locations come from one setting, so Phase 2 only changes that setting.</p><p>Reading an image is one function. Tests use a fake one, and only a single script calls the real AI. The AI returns its answer in a fixed structure. Every field is optional, and missing ones are flagged.</p><p>Dates are stored in the Western calendar. Buddhist Era dates are converted only when the AI result is read.</p><p>Filters live in the page address, so the list, the dashboard and the CSV export share them, and links can be bookmarked.</p><p>Colours, text sizes and spacing are set once in step 5 and reused everywhere, so there is no restyle at the end. A commit is saved after every task that passes its checks.</p><p class="src">Source: tasks/plan.md &gt; Architecture Decisions</p></section>
+<section class="slide" id="s-check"><h2>Please check</h2><p>Tick each item once you have checked it. Ticks are saved in this browser only.</p><ul class="checks"><li><label><input type="checkbox" data-key="exec-summary:0c1663b6a2:6e7af9117c"><span>The goal describes what I want.</span></label></li><li><label><input type="checkbox" data-key="exec-summary:0c1663b6a2:fa2d90dabe"><span>Checkpoint A: The automatic checks and the build pass.; You review the spike results: go on, or change the instructions or the AI model.</span></label></li><li><label><input type="checkbox" data-key="exec-summary:0c1663b6a2:6fa151972e"><span>Checkpoint B: The automatic checks and the build pass, and all end-to-end tests so far pass.; Adding, editing, deleting, categories and foreign currency all work, and survive a restart.; You review the look of the list and form.</span></label></li><li><label><input type="checkbox" data-key="exec-summary:0c1663b6a2:b641109e41"><span>Checkpoint C: The automatic checks and the build pass.; Success criterion 4: dashboard THB totals match a hand calculation, including foreign-currency records.</span></label></li><li><label><input type="checkbox" data-key="exec-summary:0c1663b6a2:93ab855887"><span>Checkpoint D: The automatic checks and the build pass.; Success criterion 2: a real run on 10 samples, after you approve the cost. Amount, currency and date are right on at least 9, and the category is sensible on at least 8. Results are recorded.; Success criterion 5: a Thai slip dated in the Buddhist Era saves with the correct Western date.</span></label></li><li><label><input type="checkbox" data-key="exec-summary:0c1663b6a2:3a0f9bdefa"><span>Checkpoint: Phase 1 complete: Spec success criteria 1-8 all pass.; The project history has no secrets or personal data (success criterion 8).; You approve. Next step: plan Phase 2 (Railway).</span></label></li></ul></section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js" integrity="sha384-rbtjAdnIQE/aQJGEgXrVUlMibdfTSa4PQju4HDhN3sR2PmaKFzhEafuePsl9H/9I" crossorigin="anonymous" defer></script>
+<script>
+(function () {
+  var root = document.documentElement;
+  root.className += " js";
+
+  var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+  var count = document.getElementById("count");
+  var toc = document.querySelector(".toc");
+  var current = 0;
+
+  function read(key) {
+    try {
+      return window.localStorage.getItem(key);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function write(key, value) {
+    try {
+      window.localStorage.setItem(key, value);
+    } catch (e) {
+      /* storage can be blocked; the deck still works without it */
+    }
+  }
+
+  function show(index) {
+    if (!slides.length) {
+      return;
+    }
+    current = Math.max(0, Math.min(slides.length - 1, index));
+    slides.forEach(function (slide, i) {
+      slide.classList.toggle("active", i === current);
+    });
+    count.textContent = "Slide " + (current + 1) + " of " + slides.length;
+    document.getElementById("prev").disabled = current === 0;
+    document.getElementById("next").disabled = current === slides.length - 1;
+    window.scrollTo(0, 0);
+  }
+
+  function showFromHash() {
+    var id = window.location.hash.replace("#", "");
+    for (var i = 0; i < slides.length; i++) {
+      if (slides[i].id === id) {
+        show(i);
+        return;
+      }
+    }
+    show(0);
+  }
+
+  document.getElementById("prev").addEventListener("click", function () {
+    show(current - 1);
+  });
+  document.getElementById("next").addEventListener("click", function () {
+    show(current + 1);
+  });
+
+  toc.addEventListener("click", function (event) {
+    if (event.target.tagName === "A") {
+      toc.removeAttribute("open");
+    }
+  });
+
+  window.addEventListener("hashchange", showFromHash);
+
+  document.addEventListener("keydown", function (event) {
+    var target = event.target;
+    var isTyping =
+      target.tagName === "TEXTAREA" ||
+      target.isContentEditable ||
+      (target.tagName === "INPUT" && target.type !== "checkbox");
+    if (isTyping || event.altKey || event.ctrlKey || event.metaKey) {
+      return;
+    }
+    if (event.key === "ArrowRight" || event.key === "PageDown") {
+      show(current + 1);
+    } else if (event.key === "ArrowLeft" || event.key === "PageUp") {
+      show(current - 1);
+    } else if (event.key === "Home") {
+      show(0);
+    } else if (event.key === "End") {
+      show(slides.length - 1);
+    }
+  });
+
+  var themeKey = "exec-summary:theme";
+  var savedTheme = read(themeKey);
+  if (savedTheme === "light" || savedTheme === "dark") {
+    root.setAttribute("data-theme", savedTheme);
+  }
+  var themeSwitch = document.getElementById("theme");
+  var systemQuery = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+
+  function isDark() {
+    var explicit = root.getAttribute("data-theme");
+    return explicit ? explicit === "dark" : !!(systemQuery && systemQuery.matches);
+  }
+
+  function syncSwitch() {
+    themeSwitch.setAttribute("aria-checked", isDark() ? "true" : "false");
+  }
+
+  themeSwitch.addEventListener("click", function () {
+    var next = isDark() ? "light" : "dark";
+    root.setAttribute("data-theme", next);
+    write(themeKey, next);
+    syncSwitch();
+    drawDiagrams();
+  });
+  if (systemQuery && systemQuery.addEventListener) {
+    systemQuery.addEventListener("change", function () {
+      syncSwitch();
+      drawDiagrams();
+    });
+  }
+  syncSwitch();
+
+  var boxes = document.querySelectorAll("input[data-key]");
+  Array.prototype.forEach.call(boxes, function (box) {
+    box.checked = read(box.getAttribute("data-key")) === "1";
+    box.addEventListener("change", function () {
+      write(box.getAttribute("data-key"), box.checked ? "1" : "0");
+    });
+  });
+
+  var drawCount = 0;
+  var DRAW_TIMEOUT = 8000;
+
+  /* A diagram box is "drawn" (picture shown) or "failed" (table of nodes and edges shown). With
+     no state yet, a short "Drawing" text shows instead of the raw definition. */
+  function setState(box, state) {
+    box.setAttribute("data-state", state);
+    box.querySelector(".diagram-fallback").hidden = state !== "failed";
+  }
+
+  function renderSvg(definition, theme) {
+    drawCount += 1;
+    var id = "diagram-" + drawCount;
+    /* The theme travels with each definition, so overlapping draws cannot mix themes up. */
+    var text = '%%{init: {"theme": "' + theme + '"}}%%\n' + definition;
+    return window.mermaid.render(id, text).then(
+      function (result) {
+        return result.svg;
+      },
+      function (error) {
+        var leftover = document.getElementById("d" + id);
+        if (leftover) {
+          leftover.remove();
+        }
+        throw error;
+      }
+    );
+  }
+
+  /* Mermaid draws off screen, so diagrams on hidden slides are drawn too. Each diagram is drawn
+     twice: once in the current theme for the screen, once light for printing. */
+  function drawDiagram(box, theme) {
+    var pre = box.querySelector(".mermaid");
+    var printed = box.querySelector(".mermaid-print");
+    if (pre.definition === undefined) {
+      pre.definition = pre.textContent;
+    }
+    Promise.all([renderSvg(pre.definition, theme), renderSvg(pre.definition, "default")])
+      .then(function (svgs) {
+        pre.innerHTML = svgs[0];
+        printed.innerHTML = svgs[1];
+        setState(box, "drawn");
+      })
+      .catch(function () {
+        setState(box, "failed");
+      });
+  }
+
+  function drawDiagrams() {
+    var boxes = document.querySelectorAll(".diagram");
+    if (!boxes.length) {
+      return;
+    }
+    var theme = isDark() ? "dark" : "default";
+    Array.prototype.forEach.call(boxes, function (box) {
+      if (!window.mermaid) {
+        setState(box, "failed");
+        return;
+      }
+      try {
+        window.mermaid.initialize({ startOnLoad: false, securityLevel: "strict" });
+        drawDiagram(box, theme);
+      } catch (e) {
+        setState(box, "failed");
+      }
+    });
+  }
+
+  /* If Mermaid is slow to load, show the table. A later successful draw replaces it. */
+  window.setTimeout(function () {
+    Array.prototype.forEach.call(document.querySelectorAll(".diagram:not([data-state])"), function (box) {
+      setState(box, "failed");
+    });
+  }, DRAW_TIMEOUT);
+
+  if (document.readyState === "complete") {
+    drawDiagrams();
+  } else {
+    window.addEventListener("load", drawDiagrams);
+  }
+  showFromHash();
+})();
+
+</script>
+</body>
+</html>

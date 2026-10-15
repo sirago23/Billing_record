@@ -1,0 +1,1023 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'">
+<title>Billing Record</title>
+<style>
+:root {
+  --bg: #f6f6f3;
+  --surface: #ffffff;
+  --text: #1d1d1b;
+  --muted: #5a5a55;
+  --line: #d9d9d2;
+  --accent: #2c5a88;
+  --accent-text: #ffffff;
+  --fs-title: clamp(1.5rem, 1rem + 1.5vw, 2.75rem);
+  --fs-body: clamp(1rem, 0.85rem + 0.44vw, 1.375rem);
+  --fs-small: clamp(0.875rem, 0.8rem + 0.15vw, 1.125rem);
+  --gap: clamp(16px, 1.2vw, 24px);
+  --pad: clamp(16px, 2.5vw, 48px);
+  --radius: 6px;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #131315;
+    --surface: #1c1c1f;
+    --text: #ececea;
+    --muted: #a6a6a0;
+    --line: #35353b;
+    --accent: #8fb6e3;
+    --accent-text: #101012;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #131315;
+  --surface: #1c1c1f;
+  --text: #ececea;
+  --muted: #a6a6a0;
+  --line: #35353b;
+  --accent: #8fb6e3;
+  --accent-text: #101012;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: light dark;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: var(--fs-body);
+  line-height: 1.55;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.2;
+  margin: 0 0 var(--gap);
+}
+
+h1,
+h2 {
+  font-size: var(--fs-title);
+}
+
+h3 {
+  font-size: var(--fs-body);
+}
+
+p {
+  margin: 0 0 var(--gap);
+}
+
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.bar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px var(--gap);
+  padding: 10px var(--gap);
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  font-size: var(--fs-small);
+}
+
+.bar .count {
+  color: var(--muted);
+}
+
+.bar .nav {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+}
+
+button {
+  font: inherit;
+  font-size: var(--fs-small);
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 6px 12px;
+  min-height: 36px;
+  cursor: pointer;
+}
+
+button:hover {
+  border-color: var(--accent);
+}
+
+.bar .nav {
+  align-items: center;
+}
+
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 6px;
+  border: 0;
+  background: transparent;
+}
+
+html:not(.js) .switch {
+  display: none;
+}
+
+.switch-track {
+  position: relative;
+  flex: none;
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  background: var(--muted);
+  transition: background 0.15s;
+}
+
+.switch-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--surface);
+  transition: transform 0.15s;
+}
+
+.switch[aria-checked="true"] .switch-track {
+  background: var(--accent);
+}
+
+.switch[aria-checked="true"] .switch-knob {
+  transform: translateX(20px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .switch-track,
+  .switch-knob {
+    transition: none;
+  }
+}
+
+.toc {
+  position: relative;
+}
+
+.toc summary {
+  cursor: pointer;
+  padding: 6px 0;
+}
+
+.toc ol {
+  position: absolute;
+  left: 0;
+  top: 100%;
+  z-index: 6;
+  margin: 4px 0 0;
+  padding: 8px 8px 8px 32px;
+  width: min(320px, calc(100vw - 2 * var(--gap)));
+  max-height: 70vh;
+  overflow: auto;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.toc a {
+  display: block;
+  padding: 4px 0;
+  color: var(--accent);
+}
+
+#deck {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: var(--gap);
+}
+
+.slide {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 24px var(--pad);
+  margin-bottom: 0;
+  scroll-margin-top: 80px;
+}
+
+@media (min-width: 720px) {
+  .js .slide.active {
+    min-height: calc(100vh - 120px);
+  }
+}
+
+.js .slide:not(.active) {
+  display: none;
+}
+
+.src {
+  margin: var(--gap) 0 0;
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+
+th.src,
+td.src {
+  margin: 0;
+  width: 14%;
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--muted);
+  opacity: 0.85;
+  overflow-wrap: anywhere;
+}
+
+td.path {
+  min-width: 7em;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 719px) {
+  #deck {
+    padding: 8px;
+  }
+
+  .slide {
+    padding: 20px 12px;
+  }
+
+  th,
+  td {
+    padding: 6px 4px;
+  }
+
+  th.src,
+  td.src {
+    width: 22%;
+    min-width: 5.5em;
+    font-size: 0.6875rem;
+  }
+}
+
+.card h3 {
+  margin-bottom: 8px;
+}
+
+.card ul {
+  margin: 0;
+  padding-left: 1.2em;
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
+@media (min-width: 720px) {
+  .steps {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+}
+
+.step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: var(--gap);
+  padding-top: calc(var(--gap) + 18px);
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--accent);
+  border-radius: var(--radius);
+  counter-increment: step;
+}
+
+.step::before {
+  content: "Step " counter(step);
+  position: absolute;
+  top: 6px;
+  left: var(--gap);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.step .src {
+  margin: 0;
+}
+
+table + h3 {
+  margin-top: calc(var(--gap) * 1.5);
+}
+
+td ul {
+  margin: 0;
+  padding-left: 1.2em;
+}
+
+.impact {
+  display: inline-block;
+  padding: 2px 8px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.impact-high {
+  color: #b3261e;
+}
+
+.impact-med {
+  color: #8a5a00;
+}
+
+.impact-low {
+  color: #2d6a3a;
+}
+
+:root[data-theme="dark"] .impact-high {
+  color: #ff9a92;
+}
+
+:root[data-theme="dark"] .impact-med {
+  color: #f0c36a;
+}
+
+:root[data-theme="dark"] .impact-low {
+  color: #8fd19e;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .impact-high {
+    color: #ff9a92;
+  }
+
+  :root:not([data-theme="light"]) .impact-med {
+    color: #f0c36a;
+  }
+
+  :root:not([data-theme="light"]) .impact-low {
+    color: #8fd19e;
+  }
+}
+
+.wireframes {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gap);
+}
+
+@media (min-width: 720px) {
+  .wireframes {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.wireframe {
+  margin: 0;
+}
+
+.wireframe figcaption {
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.wf-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border: 2px dashed var(--muted);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--line) 35%, transparent);
+  font-size: var(--fs-small);
+}
+
+.wf-note {
+  margin: 8px 0 0;
+  font-size: var(--fs-small);
+  font-style: italic;
+  color: var(--muted);
+}
+
+.wf-block {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--muted);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.wf-header {
+  font-weight: 700;
+  background: var(--line);
+}
+
+.wf-button {
+  justify-content: center;
+  align-self: flex-start;
+  padding: 8px 20px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.wf-image {
+  min-height: 90px;
+  align-items: center;
+  justify-content: center;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--surface),
+    var(--surface) 10px,
+    var(--line) 10px,
+    var(--line) 11px
+  );
+}
+
+.wf-item {
+  flex: 1 1 5em;
+  padding: 8px;
+  border: 1px solid var(--muted);
+  border-radius: 4px;
+  text-align: center;
+}
+
+.wf-field {
+  flex: 1 1 100%;
+  padding: 8px;
+  border: 1px solid var(--muted);
+  border-radius: 4px;
+  color: var(--muted);
+}
+
+.wf-caption {
+  flex: 1 1 100%;
+  font-weight: 600;
+}
+
+.wf-line {
+  flex: 1 1 100%;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--line);
+}
+
+.wf-bars {
+  display: flex;
+  flex: 1 1 100%;
+  align-items: flex-end;
+  gap: 6px;
+  height: 70px;
+}
+
+.wf-bars i {
+  flex: 1;
+  background: var(--muted);
+  border-radius: 2px 2px 0 0;
+}
+
+.design {
+  margin: 0;
+}
+
+.design img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+}
+
+.design figcaption {
+  margin-top: 8px;
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+
+.diagram .mermaid {
+  margin: 0;
+  overflow-x: auto;
+  text-align: center;
+}
+
+.diagram .mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+
+html:not(.js) .diagram .mermaid,
+.js .diagram:not([data-state]) .mermaid,
+.js .diagram[data-state="failed"] .mermaid,
+.diagram .mermaid-print {
+  display: none;
+}
+
+.js .diagram:not([data-state])::before {
+  content: "Drawing the diagram...";
+  display: block;
+  color: var(--muted);
+}
+
+html:not(.js) .diagram-fallback[hidden] {
+  display: block;
+}
+
+.tagline {
+  color: var(--muted);
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gap);
+}
+
+@media (min-width: 720px) {
+  .slide {
+    padding: calc(var(--pad) * 0.75) var(--pad);
+  }
+
+  .cards {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--gap);
+}
+
+.card .id {
+  display: inline-block;
+  margin-bottom: 8px;
+  font-size: var(--fs-small);
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.card p {
+  margin-bottom: 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-small);
+}
+
+th,
+td {
+  text-align: left;
+  padding: 8px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+  overflow-wrap: break-word;
+}
+
+tbody tr:nth-child(even) {
+  background: color-mix(in srgb, var(--line) 25%, transparent);
+}
+
+table.grouped tbody tr:nth-child(even) {
+  background: none;
+}
+
+table.grouped tr.group-start td {
+  border-top: 2px solid var(--line);
+}
+
+table.grouped td[rowspan] {
+  min-width: 6em;
+  font-weight: 600;
+}
+
+.checks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.checks li {
+  padding: 6px 0;
+}
+
+.checks label {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  cursor: pointer;
+}
+
+.checks input {
+  width: 20px;
+  height: 20px;
+  margin-top: 3px;
+  flex: none;
+  accent-color: var(--accent);
+}
+
+@media print {
+  /* Print is always light, whatever theme the screen is in. */
+  :root,
+  :root[data-theme="dark"],
+  :root:not([data-theme="light"]) {
+    --bg: #fff;
+    --surface: #fff;
+    --text: #000;
+    --muted: #444;
+    --line: #bbb;
+    --accent: #1f4a75;
+    --accent-text: #fff;
+  }
+
+  .impact-high,
+  :root[data-theme="dark"] .impact-high,
+  :root:not([data-theme="light"]) .impact-high {
+    color: #b3261e;
+  }
+
+  .impact-med,
+  :root[data-theme="dark"] .impact-med,
+  :root:not([data-theme="light"]) .impact-med {
+    color: #8a5a00;
+  }
+
+  .impact-low,
+  :root[data-theme="dark"] .impact-low,
+  :root:not([data-theme="light"]) .impact-low {
+    color: #2d6a3a;
+  }
+
+  .diagram .mermaid {
+    display: none !important;
+  }
+
+  .diagram[data-state="drawn"] .mermaid-print {
+    display: block;
+    text-align: center;
+  }
+
+  .mermaid-print svg {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .bar {
+    display: none;
+  }
+
+  body {
+    background: #fff;
+    color: #000;
+  }
+
+  #deck {
+    max-width: none;
+    padding: 0;
+  }
+
+  .js .slide:not(.active),
+  .slide {
+    display: block;
+    border: 0;
+    break-after: page;
+    page-break-after: always;
+  }
+}
+
+</style>
+</head>
+<body>
+<header class="bar">
+  <details class="toc">
+    <summary>Contents</summary>
+    <ol>
+      <li><a href="#s-title">Overview</a></li>
+      <li><a href="#s-goal">The goal</a></li>
+      <li><a href="#s-stories">What you can do</a></li>
+      <li><a href="#s-stories-2">What you can do (continued)</a></li>
+      <li><a href="#s-criteria">How we will know it works</a></li>
+      <li><a href="#s-criteria-2">How we will know it works (continued)</a></li>
+      <li><a href="#s-screens">Example screens</a></li>
+      <li><a href="#s-screens-2">Example screens (continued)</a></li>
+      <li><a href="#s-architecture">How the parts connect (simplified)</a></li>
+      <li><a href="#s-flow">From a bill to a saved record (simplified)</a></li>
+      <li><a href="#s-data">What information it keeps</a></li>
+      <li><a href="#s-stack">Building blocks</a></li>
+      <li><a href="#s-stack-2">Building blocks (continued)</a></li>
+      <li><a href="#s-rules">Rules the AI follows</a></li>
+      <li><a href="#s-decisions">Decisions already made</a></li>
+      <li><a href="#s-out-of-scope">Not included</a></li>
+      <li><a href="#s-success">How we measure success</a></li>
+      <li><a href="#s-success-2">How we measure success (continued)</a></li>
+      <li><a href="#s-notes">Phase 1: Local</a></li>
+      <li><a href="#s-notes-2">Phase 2: Deploy to Railway</a></li>
+      <li><a href="#s-notes-3">Delivery in two phases</a></li>
+      <li><a href="#s-notes-4">How you use it in Phase 1</a></li>
+      <li><a href="#s-notes-5">Phase 2 on Railway</a></li>
+      <li><a href="#s-notes-6">Look and feel</a></li>
+      <li><a href="#s-notes-7">How it will be tested</a></li>
+      <li><a href="#s-notes-8">Rules for categories, money and duplicates</a></li>
+      <li><a href="#s-check">Please check</a></li>
+    </ol>
+  </details>
+  <span class="count" id="count" aria-live="polite"></span>
+  <div class="nav">
+    <button type="button" id="prev">Previous</button>
+    <button type="button" id="next">Next</button>
+    <button type="button" id="theme" class="switch" role="switch" aria-checked="false">
+      <span class="switch-label">Dark mode</span>
+      <span class="switch-track" aria-hidden="true"><span class="switch-knob"></span></span>
+    </button>
+  </div>
+</header>
+<main id="deck">
+<section class="slide" id="s-title"><h1>Billing Record</h1><p class="tagline">Record income and expenses from a photo of a bill or bank slip.</p><p>Draft, awaiting approval · 2026-10-14</p><h3>This summary covers</h3><table><thead><tr><th>File</th><th>Last changed</th><th>Contains</th></tr></thead><tbody><tr><td class="path">SPEC.md</td><td>2026-10-14</td><td>goal, stories, criteria, phases, out of scope, stack, data model, design direction, testing, rules, success criteria, decisions</td></tr></tbody></table></section>
+<section class="slide" id="s-goal"><h2>The goal</h2><p>A personal web app for one user (you) to record income and expenses without typing them in by hand.</p><p>You upload a bank transfer slip, or photograph a bill or receipt with your phone. The app reads the image and pulls out the amount, currency, date, who was paid or who paid you, whether it is income or an expense, and a category.</p><p>You check the result, fix anything wrong, and save it. The app then adds up your records and shows totals as charts.</p><p>Slips and bills can be in Thai or English, and amounts can be in more than one currency.</p><p class="src">Source: SPEC.md &gt; Objective</p></section>
+<section class="slide" id="s-stories"><h2>What you can do</h2><div class="cards"><div class="card"><span class="id">S1</span><p>As the user, I want to upload a bank slip image and get a pre-filled record I can confirm in one click.</p><p class="src">Source: SPEC.md &gt; User stories</p></div><div class="card"><span class="id">S2</span><p>As the user, I want to take a photo of a paper bill on my phone and get the same pre-filled record.</p><p class="src">Source: SPEC.md &gt; User stories</p></div><div class="card"><span class="id">S3</span><p>As the user, I want to add a record by hand when I have no image.</p><p class="src">Source: SPEC.md &gt; User stories</p></div><div class="card"><span class="id">S4</span><p>As the user, I want to edit or delete any record, including ones the AI created.</p><p class="src">Source: SPEC.md &gt; User stories</p></div><div class="card"><span class="id">S5</span><p>As the user, I want to see where my money went this month in a category chart, and how income compares with expenses over time.</p><p class="src">Source: SPEC.md &gt; User stories</p></div><div class="card"><span class="id">S6</span><p>As the user, I want to filter records by date range, category, direction and currency.</p><p class="src">Source: SPEC.md &gt; User stories</p></div></div></section>
+<section class="slide" id="s-stories-2"><h2>What you can do (continued)</h2><div class="cards"><div class="card"><span class="id">S7</span><p>As the user, I want to export all my records to a CSV file as a backup.</p><p class="src">Source: SPEC.md &gt; User stories</p></div></div></section>
+<section class="slide" id="s-criteria"><h2>How we will know it works</h2><table class="grouped"><thead><tr><th>Story</th><th>It works when</th><th class="src">Source</th></tr></thead><tbody><tr class="group-start"><td rowspan="3">S1: to upload a bank slip image and get a pre-filled record I can confirm in one click</td><td>Accepts JPEG, PNG, WebP and HEIC images up to 10 MB.</td><td class="src">SPEC.md &gt; Acceptance criteria</td></tr><tr><td>Fields are returned within 15 seconds for a typical slip.</td><td class="src">SPEC.md &gt; Acceptance criteria</td></tr><tr><td>Nothing is saved until you confirm it.</td><td class="src">SPEC.md &gt; Acceptance criteria</td></tr><tr class="group-start"><td rowspan="2">S2: to take a photo of a paper bill on my phone and get the same pre-filled record</td><td>On a phone, the file picker offers the camera.</td><td class="src">SPEC.md &gt; Acceptance criteria</td></tr><tr><td>Fields the app cannot find are left empty and flagged.</td><td class="src">SPEC.md &gt; Acceptance criteria</td></tr><tr class="group-start"><td>S3: to add a record by hand when I have no image</td><td>Every field the app fills in can also be typed and edited by hand.</td><td class="src">SPEC.md &gt; Acceptance criteria</td></tr><tr class="group-start"><td rowspan="2">S4: to edit or delete any record, including ones the AI created</td><td>Every saved record can be edited or deleted.</td><td class="src">SPEC.md &gt; Acceptance criteria</td></tr><tr><td>Deleting asks you to confirm.</td><td class="src">SPEC.md &gt; Acceptance criteria</td></tr></tbody></table></section>
+<section class="slide" id="s-criteria-2"><h2>How we will know it works (continued)</h2><table class="grouped"><thead><tr><th>Story</th><th>It works when</th><th class="src">Source</th></tr></thead><tbody><tr class="group-start"><td rowspan="3">S5: to see where my money went this month in a category chart, and how income compares with expenses over time</td><td>Shows total income, total expense and net in THB, for the current month by default.</td><td class="src">SPEC.md &gt; Acceptance criteria</td></tr><tr><td>A donut chart shows expenses by category.</td><td class="src">SPEC.md &gt; Acceptance criteria</td></tr><tr><td>A bar chart shows income against expenses for each of the last 6 months.</td><td class="src">SPEC.md &gt; Acceptance criteria</td></tr><tr class="group-start"><td>S6: to filter records by date range, category, direction and currency</td><td>Both charts follow the filters you choose.</td><td class="src">SPEC.md &gt; Acceptance criteria</td></tr><tr class="group-start"><td rowspan="2">S7: to export all my records to a CSV file as a backup</td><td>One button downloads all records, or only the filtered ones.</td><td class="src">SPEC.md &gt; Acceptance criteria</td></tr><tr><td>Thai text opens correctly in Excel.</td><td class="src">SPEC.md &gt; Acceptance criteria</td></tr></tbody></table></section>
+<section class="slide" id="s-screens"><h2>Example screens</h2><div class="wireframes"><figure class="wireframe"><figcaption>Dashboard</figcaption><div class="wf-screen"><div class="wf-block wf-header">Billing Record</div><div class="wf-block wf-stats"><span class="wf-item">Income</span><span class="wf-item">Expense</span><span class="wf-item">Net (THB)</span></div><div class="wf-block wf-chart"><span class="wf-caption">Expenses by category</span><span class="wf-bars"><i style="height:45%"></i><i style="height:70%"></i><i style="height:55%"></i><i style="height:85%"></i><i style="height:60%"></i></span></div><div class="wf-block wf-chart"><span class="wf-caption">Income vs. expense, last 6 months</span><span class="wf-bars"><i style="height:45%"></i><i style="height:70%"></i><i style="height:55%"></i><i style="height:85%"></i><i style="height:60%"></i></span></div><div class="wf-block wf-button">Add record</div></div><p class="wf-note">Example layout, not the final design</p></figure><figure class="wireframe"><figcaption>Upload and review</figcaption><div class="wf-screen"><div class="wf-block wf-header">Upload or take a photo</div><div class="wf-block wf-image">Bill or slip image</div><div class="wf-block wf-form"><span class="wf-field">Amount</span><span class="wf-field">currency</span><span class="wf-field">date</span><span class="wf-field">counterparty</span><span class="wf-field">category</span></div><div class="wf-block wf-text"><span class="wf-caption">Empty fields are flagged</span><span class="wf-line"></span><span class="wf-line"></span></div><div class="wf-block wf-button">Confirm and save</div></div><p class="wf-note">Example layout, not the final design</p></figure></div><p class="src">Source: SPEC.md &gt; Design Direction</p><p class="src">Source: SPEC.md &gt; Acceptance criteria</p></section>
+<section class="slide" id="s-screens-2"><h2>Example screens (continued)</h2><div class="wireframes"><figure class="wireframe"><figcaption>Records list</figcaption><div class="wf-screen"><div class="wf-block wf-header">Records</div><div class="wf-block wf-form"><span class="wf-field">Filters: date</span><span class="wf-field">category</span><span class="wf-field">direction</span><span class="wf-field">currency</span></div><div class="wf-block wf-list"><span class="wf-caption">Saved records</span><span class="wf-line"></span><span class="wf-line"></span><span class="wf-line"></span></div><div class="wf-block wf-button">Export CSV</div></div><p class="wf-note">Example layout, not the final design</p></figure></div><p class="src">Source: SPEC.md &gt; Acceptance criteria</p></section>
+<section class="slide" id="s-architecture"><h2>How the parts connect (simplified)</h2><div class="diagram"><pre class="mermaid">flowchart TB
+  n_phone[&quot;Your phone or PC&quot;]
+  n_app[&quot;The web app&quot;]
+  n_db[&quot;Your records (one file)&quot;]
+  n_ai[&quot;AI that reads images (Claude)&quot;]
+  n_fx[&quot;Exchange rate service (Frankfurter)&quot;]
+  n_phone --&gt; n_app
+  n_app --&gt;|&quot;saves&quot;| n_db
+  n_app --&gt;|&quot;image&quot;| n_ai
+  n_app --&gt;|&quot;date and currency only&quot;| n_fx</pre><div class="mermaid-print" aria-hidden="true"></div><div class="diagram-fallback" hidden><p>The picture could not be drawn here. The same information as a list:</p><p>Parts: Your phone or PC, The web app, Your records (one file), AI that reads images (Claude), Exchange rate service (Frankfurter)</p><table><thead><tr><th>From</th><th>To</th><th>What happens</th></tr></thead><tbody><tr><td>Your phone or PC</td><td>The web app</td><td></td></tr><tr><td>The web app</td><td>Your records (one file)</td><td>saves</td></tr><tr><td>The web app</td><td>AI that reads images (Claude)</td><td>image</td></tr><tr><td>The web app</td><td>Exchange rate service (Frankfurter)</td><td>date and currency only</td></tr></tbody></table></div></div><p class="src">Source: SPEC.md &gt; Tech Stack</p></section>
+<section class="slide" id="s-flow"><h2>From a bill to a saved record (simplified)</h2><div class="diagram"><pre class="mermaid">flowchart TB
+  n_A[&quot;You upload or photograph a bill&quot;]
+  n_B[&quot;The app reads the image&quot;]
+  n_C[&quot;You check and fix the result&quot;]
+  n_D[&quot;You confirm and save&quot;]
+  n_E[&quot;Totals and charts update&quot;]
+  n_A --&gt; n_B
+  n_B --&gt; n_C
+  n_C --&gt; n_D
+  n_D --&gt; n_E</pre><div class="mermaid-print" aria-hidden="true"></div><div class="diagram-fallback" hidden><p>The picture could not be drawn here. The same information as a list:</p><p>Parts: You upload or photograph a bill, The app reads the image, You check and fix the result, You confirm and save, Totals and charts update</p><table><thead><tr><th>From</th><th>To</th><th>What happens</th></tr></thead><tbody><tr><td>You upload or photograph a bill</td><td>The app reads the image</td><td></td></tr><tr><td>The app reads the image</td><td>You check and fix the result</td><td></td></tr><tr><td>You check and fix the result</td><td>You confirm and save</td><td></td></tr><tr><td>You confirm and save</td><td>Totals and charts update</td><td></td></tr></tbody></table></div></div><p class="src">Source: SPEC.md &gt; Objective</p></section>
+<section class="slide" id="s-data"><h2>What information it keeps</h2><table><thead><tr><th>Item</th><th>What it is</th><th>Details</th><th class="src">Source</th></tr></thead><tbody><tr><td>Records</td><td>Each income or expense you save: direction, original amount and currency, exchange rate, THB amount, date, who was paid or who paid you, category, note, slip reference number, the linked image, and whether the AI or you created it.</td><td></td><td class="src">SPEC.md &gt; Data Model (v1)</td></tr><tr><td>Categories</td><td>The labels you sort records into. Each belongs to income or expense and has a display order.</td><td></td><td class="src">SPEC.md &gt; Data Model (v1)</td></tr><tr><td>Exchange rates</td><td>A saved copy of each rate, so each date and currency is looked up only once.</td><td></td><td class="src">SPEC.md &gt; Data Model (v1)</td></tr></tbody></table></section>
+<section class="slide" id="s-stack"><h2>Building blocks</h2><table><thead><tr><th>Part</th><th>Choice</th><th>What it means</th><th class="src">Source</th></tr></thead><tbody><tr><td>App framework</td><td>Next.js with TypeScript</td><td>A ready-made toolkit for building web apps, with a stricter form of JavaScript that catches mistakes early.</td><td class="src">SPEC.md &gt; Tech Stack</td></tr><tr><td>Runtime</td><td>Node.js 20 or newer</td><td>The program that runs the app on a computer.</td><td class="src">SPEC.md &gt; Tech Stack</td></tr><tr><td>Database</td><td>SQLite</td><td>A database stored in one file on your computer.</td><td class="src">SPEC.md &gt; Tech Stack</td></tr><tr><td>Reading images</td><td>Claude vision</td><td>An AI model that reads pictures and returns the details as structured fields.</td><td class="src">SPEC.md &gt; Tech Stack</td></tr><tr><td>Exchange rates</td><td>Frankfurter</td><td>A free service that gives the rate for a date. It needs no key.</td><td class="src">SPEC.md &gt; Tech Stack</td></tr><tr><td>Charts</td><td>Recharts</td><td>A toolkit for drawing the charts.</td><td class="src">SPEC.md &gt; Tech Stack</td></tr><tr><td>Styling</td><td>Tailwind CSS</td><td>A toolkit for the look of the pages.</td><td class="src">SPEC.md &gt; Tech Stack</td></tr><tr><td>Image handling</td><td>sharp</td><td>Converts HEIC photos to JPEG and shrinks large images before they are sent to the AI.</td><td class="src">SPEC.md &gt; Tech Stack</td></tr></tbody></table></section>
+<section class="slide" id="s-stack-2"><h2>Building blocks (continued)</h2><table><thead><tr><th>Part</th><th>Choice</th><th>What it means</th><th class="src">Source</th></tr></thead><tbody><tr><td>Automatic checks</td><td>Vitest and Playwright</td><td>Small programs that use the app and check it still works.</td><td class="src">SPEC.md &gt; Tech Stack</td></tr></tbody></table></section>
+<section class="slide" id="s-rules"><h2>Rules the AI follows</h2><div class="cards"><div class="card"><h3>Always</h3><ul><li>Run the code checks and automatic tests before every commit.</li><li>Check all input and all AI output before it touches the database.</li><li>Keep the API key in a private settings file and use it on the server only.</li><li>Store money as whole numbers of the smallest unit (such as satang or cents).</li><li>Check for secrets and personal data before every push, because the repo is public.</li></ul></div><div class="card"><h3>Asks you first</h3><ul><li>Adding a software package that is not listed in the spec.</li><li>Changing the database layout after the first version.</li><li>Running anything that makes real AI calls, because it costs credits.</li><li>Changing the AI model or the instructions given to it in ways that affect cost.</li><li>Making the app reachable beyond the home network in Phase 1.</li><li>Every Railway action: creating the service or volume, setting variables, deploying and moving data.</li><li>Anything that adds Railway cost.</li></ul></div><div class="card"><h3>Never</h3><ul><li>Commit private settings, the database, uploaded images, scratch files or handoff notes.</li><li>Commit real slips, receipts or any personal financial data, even as test files.</li><li>Send images anywhere other than the AI service. The exchange rate service gets only a date and a currency code.</li><li>Save an AI-read record without your confirmation.</li><li>Delete or skip failing tests to get to green.</li><li>Put the app on the public internet without the login in place and tested.</li><li>Run more than one copy of the app against the database volume.</li></ul></div></div><p class="src">Source: SPEC.md &gt; Boundaries</p></section>
+<section class="slide" id="s-decisions"><h2>Decisions already made</h2><table><thead><tr><th>Decision</th><th class="src">Source</th></tr></thead><tbody><tr><td>All totals and charts are in THB. Other currencies are converted with a rate from Frankfurter, which you can override.</td><td class="src">SPEC.md &gt; Decisions (resolved 2026-10-14)</td></tr><tr><td>Dates are shown in the Western calendar (CE). Buddhist Era years on slips are converted when the image is read.</td><td class="src">SPEC.md &gt; Decisions (resolved 2026-10-14)</td></tr><tr><td>Phase 1 has no login and runs on the home network only. Phase 2 adds a single-password login because the app becomes public.</td><td class="src">SPEC.md &gt; Decisions (resolved 2026-10-14)</td></tr><tr><td>Phase 1 is local. Phase 2 deploys to your Railway account with the database on a volume.</td><td class="src">SPEC.md &gt; Decisions (resolved 2026-10-14)</td></tr><tr><td>A receipt becomes one record, with the total amount only.</td><td class="src">SPEC.md &gt; Decisions (resolved 2026-10-14)</td></tr><tr><td>Backup is a manual CSV export button.</td><td class="src">SPEC.md &gt; Decisions (resolved 2026-10-14)</td></tr><tr><td>Phase 2 login is one password with a 30-day session. No Google sign-in or two-step login.</td><td class="src">SPEC.md &gt; Decisions (resolved 2026-10-14)</td></tr><tr><td>Phase 2 uses the free Railway address. No custom domain.</td><td class="src">SPEC.md &gt; Decisions (resolved 2026-10-14)</td></tr></tbody></table></section>
+<section class="slide" id="s-out-of-scope"><h2>Not included</h2><table><thead><tr><th>Left out on purpose</th><th class="src">Source</th></tr></thead><tbody><tr><td>Multiple users or accounts</td><td class="src">SPEC.md &gt; Out of scope for v1</td></tr><tr><td>Login or PIN in Phase 1 (Phase 2 adds a single-user login)</td><td class="src">SPEC.md &gt; Out of scope for v1</td></tr><tr><td>Splitting a receipt into line items</td><td class="src">SPEC.md &gt; Out of scope for v1</td></tr><tr><td>Direct bank connections or importing bank statements</td><td class="src">SPEC.md &gt; Out of scope for v1</td></tr><tr><td>Budgets, alerts and recurring transactions</td><td class="src">SPEC.md &gt; Out of scope for v1</td></tr><tr><td>Automatic backups (CSV export only)</td><td class="src">SPEC.md &gt; Out of scope for v1</td></tr><tr><td>Showing dates in the Buddhist Era</td><td class="src">SPEC.md &gt; Out of scope for v1</td></tr><tr><td>Hosting anywhere other than Railway, running several copies, or a separate database server</td><td class="src">SPEC.md &gt; Out of scope for v1</td></tr></tbody></table></section>
+<section class="slide" id="s-success"><h2>How we measure success</h2><table class="grouped"><thead><tr><th>Success looks like</th><th>Phase</th><th class="src">Source</th></tr></thead><tbody><tr class="group-start"><td>From a phone on the home network, you can photograph a bill and save a correct record in under 30 seconds, including the review step.</td><td rowspan="8">Phase 1</td><td class="src">SPEC.md &gt; Success Criteria</td></tr><tr><td>On 10 sample slips and bills (Thai and English), the AI gets amount, currency and date right in at least 9, and suggests a sensible category in at least 8.</td><td class="src">SPEC.md &gt; Success Criteria</td></tr><tr><td>You can create, view, change and delete records and categories, and the data is still there after a restart.</td><td class="src">SPEC.md &gt; Success Criteria</td></tr><tr><td>Dashboard THB totals match a hand calculation, including records in other currencies.</td><td class="src">SPEC.md &gt; Success Criteria</td></tr><tr><td>A Thai slip dated in the Buddhist Era is saved and shown with the correct Western date.</td><td class="src">SPEC.md &gt; Success Criteria</td></tr><tr><td>The CSV file opens in Excel with Thai text intact, and THB amounts match the dashboard.</td><td class="src">SPEC.md &gt; Success Criteria</td></tr><tr><td>All automatic checks pass, and at least 80% of the core code is covered by tests.</td><td class="src">SPEC.md &gt; Success Criteria</td></tr><tr><td>No secrets or personal data appear anywhere in the project history.</td><td class="src">SPEC.md &gt; Success Criteria</td></tr></tbody></table></section>
+<section class="slide" id="s-success-2"><h2>How we measure success (continued)</h2><table class="grouped"><thead><tr><th>Success looks like</th><th>Phase</th><th class="src">Source</th></tr></thead><tbody><tr class="group-start"><td>The app is live at a Railway HTTPS address, and you can photograph a bill on mobile data and save it.</td><td rowspan="5">Phase 2</td><td class="src">SPEC.md &gt; Success Criteria</td></tr><tr><td>Without logging in, every page, data route and image address sends you to the login page or is refused. This is checked by an automatic test and by hand.</td><td class="src">SPEC.md &gt; Success Criteria</td></tr><tr><td>Records and images survive a redeploy and a restart.</td><td class="src">SPEC.md &gt; Success Criteria</td></tr><tr><td>Moved data matches the local copy (record count and dashboard totals).</td><td class="src">SPEC.md &gt; Success Criteria</td></tr><tr><td>No secrets appear in the repo, build logs or the pages sent to the browser.</td><td class="src">SPEC.md &gt; Success Criteria</td></tr></tbody></table></section>
+<section class="slide" id="s-notes"><h2>Phase 1: Local</h2><p>Build every feature in the spec and run it on your PC, with access from your phone over the home network.</p><p>No login. Data lives in a data folder on your PC.</p><p>Done when Phase 1 success criteria 1-8 pass.</p><p class="src">Source: SPEC.md &gt; Phase 1: Local</p></section>
+<section class="slide" id="s-notes-2"><h2>Phase 2: Deploy to Railway</h2><p>Put the same app on your existing Railway account as a public web app with HTTPS, so it works from your phone anywhere. Data lives on a Railway volume.</p><p>Add a login first: the app must not go public without it. No feature changes beyond what deployment needs.</p><p>Phase 2 starts only after Phase 1 meets its success criteria. Done when Phase 2 success criteria 9-13 pass.</p><p class="src">Source: SPEC.md &gt; Phase 2: Deploy to Railway</p></section>
+<section class="slide" id="s-notes-3"><h2>Delivery in two phases</h2><p>The work ships in two phases. Phase 2 starts only after Phase 1 meets its success criteria.</p><p class="src">Source: SPEC.md &gt; Delivery Phases</p></section>
+<section class="slide" id="s-notes-4"><h2>How you use it in Phase 1</h2><p>The app runs on your PC. To use the phone camera, the phone opens the app over the home network.</p><p>The app has no login, so anyone on the home network can open it. Remote access is out of scope for v1.</p><p>Internet is needed to read images and get exchange rates. Adding THB records by hand works offline.</p><p class="src">Source: SPEC.md &gt; Runtime and access (Phase 1)</p></section>
+<section class="slide" id="s-notes-5"><h2>Phase 2 on Railway</h2><p>Railway builds and runs the app from the GitHub project, gives it an HTTPS address, and keeps a volume so records and images survive redeploys.</p><p>Login: one password, no usernames. A successful login lasts 30 days. After 5 failed tries in 15 minutes, login is blocked for 15 minutes. A logout button ends the session.</p><p>Moving data: a one-time script copies your Phase 1 records and images to Railway, then record counts and totals are compared.</p><p>Backup: the CSV export stays the main backup. Railway volume backups are turned on if your plan includes them.</p><p>Cost: Railway bills by usage. One small always-on service with a small volume is expected to stay within the entry plan. You confirm this before deploying.</p><p class="src">Source: SPEC.md &gt; Phase 2 Deployment (Railway)</p></section>
+<section class="slide" id="s-notes-6"><h2>Look and feel</h2><p>Clean, quiet and practical, and not AI-looking: neutral colours, one accent colour, no gradients or emoji.</p><p>Income and expense use a muted green and red, always with a sign or label.</p><p>Amounts use aligned numerals. Charts use at most 6 category colours, with small ones grouped into Other.</p><p>The Add record button is always one tap away on mobile. Every screen has empty, loading and error states.</p><p>Readable contrast, full keyboard use and labelled form fields.</p><p class="src">Source: SPEC.md &gt; Design Direction</p></section>
+<section class="slide" id="s-notes-7"><h2>How it will be tested</h2><p>Automatic checks cover the sums, money and date conversion, AI result reading, duplicate check, CSV output, saving and editing records, and a full walk through the app on desktop and phone sizes.</p><p>Real AI calls are not part of the automatic checks. One separate script runs a single real read by hand, because it costs credits.</p><p>Test files use made-up or fully blanked-out slips only. Never real account numbers or names.</p><p class="src">Source: SPEC.md &gt; Testing Strategy</p></section>
+<section class="slide" id="s-notes-8"><h2>Rules for categories, money and duplicates</h2><p>Default expense categories: Food, Transport, Shopping, Bills and Utilities, Health, Entertainment, Housing, Transfer out, Other. Default income categories: Salary, Transfer in, Refund, Other income.</p><p>You can add, rename and remove categories. A category in use cannot be removed until its records are moved.</p><p>Each record keeps its original amount and currency, the exchange rate to THB and the THB amount. For other currencies the app fetches the rate for the record&#x27;s date. You can override it. If it cannot be fetched, the form asks for a rate and will not save without one.</p><p>If a new record has the same amount, date and slip reference number as an existing one, the app warns before saving.</p><p>The pages work on a phone screen 360 px wide and on desktop.</p><p class="src">Source: SPEC.md &gt; Acceptance criteria</p></section>
+<section class="slide" id="s-check"><h2>Please check</h2><p>Tick each item once you have checked it. Ticks are saved in this browser only.</p><ul class="checks"><li><label><input type="checkbox" data-key="exec-summary:b90646f876:6e7af9117c"><span>The goal describes what I want.</span></label></li><li><label><input type="checkbox" data-key="exec-summary:b90646f876:57840d1cc7"><span>The user stories match what I want the system to do.</span></label></li></ul></section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js" integrity="sha384-rbtjAdnIQE/aQJGEgXrVUlMibdfTSa4PQju4HDhN3sR2PmaKFzhEafuePsl9H/9I" crossorigin="anonymous" defer></script>
+<script>
+(function () {
+  var root = document.documentElement;
+  root.className += " js";
+
+  var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+  var count = document.getElementById("count");
+  var toc = document.querySelector(".toc");
+  var current = 0;
+
+  function read(key) {
+    try {
+      return window.localStorage.getItem(key);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function write(key, value) {
+    try {
+      window.localStorage.setItem(key, value);
+    } catch (e) {
+      /* storage can be blocked; the deck still works without it */
+    }
+  }
+
+  function show(index) {
+    if (!slides.length) {
+      return;
+    }
+    current = Math.max(0, Math.min(slides.length - 1, index));
+    slides.forEach(function (slide, i) {
+      slide.classList.toggle("active", i === current);
+    });
+    count.textContent = "Slide " + (current + 1) + " of " + slides.length;
+    document.getElementById("prev").disabled = current === 0;
+    document.getElementById("next").disabled = current === slides.length - 1;
+    window.scrollTo(0, 0);
+  }
+
+  function showFromHash() {
+    var id = window.location.hash.replace("#", "");
+    for (var i = 0; i < slides.length; i++) {
+      if (slides[i].id === id) {
+        show(i);
+        return;
+      }
+    }
+    show(0);
+  }
+
+  document.getElementById("prev").addEventListener("click", function () {
+    show(current - 1);
+  });
+  document.getElementById("next").addEventListener("click", function () {
+    show(current + 1);
+  });
+
+  toc.addEventListener("click", function (event) {
+    if (event.target.tagName === "A") {
+      toc.removeAttribute("open");
+    }
+  });
+
+  window.addEventListener("hashchange", showFromHash);
+
+  document.addEventListener("keydown", function (event) {
+    var target = event.target;
+    var isTyping =
+      target.tagName === "TEXTAREA" ||
+      target.isContentEditable ||
+      (target.tagName === "INPUT" && target.type !== "checkbox");
+    if (isTyping || event.altKey || event.ctrlKey || event.metaKey) {
+      return;
+    }
+    if (event.key === "ArrowRight" || event.key === "PageDown") {
+      show(current + 1);
+    } else if (event.key === "ArrowLeft" || event.key === "PageUp") {
+      show(current - 1);
+    } else if (event.key === "Home") {
+      show(0);
+    } else if (event.key === "End") {
+      show(slides.length - 1);
+    }
+  });
+
+  var themeKey = "exec-summary:theme";
+  var savedTheme = read(themeKey);
+  if (savedTheme === "light" || savedTheme === "dark") {
+    root.setAttribute("data-theme", savedTheme);
+  }
+  var themeSwitch = document.getElementById("theme");
+  var systemQuery = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+
+  function isDark() {
+    var explicit = root.getAttribute("data-theme");
+    return explicit ? explicit === "dark" : !!(systemQuery && systemQuery.matches);
+  }
+
+  function syncSwitch() {
+    themeSwitch.setAttribute("aria-checked", isDark() ? "true" : "false");
+  }
+
+  themeSwitch.addEventListener("click", function () {
+    var next = isDark() ? "light" : "dark";
+    root.setAttribute("data-theme", next);
+    write(themeKey, next);
+    syncSwitch();
+    drawDiagrams();
+  });
+  if (systemQuery && systemQuery.addEventListener) {
+    systemQuery.addEventListener("change", function () {
+      syncSwitch();
+      drawDiagrams();
+    });
+  }
+  syncSwitch();
+
+  var boxes = document.querySelectorAll("input[data-key]");
+  Array.prototype.forEach.call(boxes, function (box) {
+    box.checked = read(box.getAttribute("data-key")) === "1";
+    box.addEventListener("change", function () {
+      write(box.getAttribute("data-key"), box.checked ? "1" : "0");
+    });
+  });
+
+  var drawCount = 0;
+  var DRAW_TIMEOUT = 8000;
+
+  /* A diagram box is "drawn" (picture shown) or "failed" (table of nodes and edges shown). With
+     no state yet, a short "Drawing" text shows instead of the raw definition. */
+  function setState(box, state) {
+    box.setAttribute("data-state", state);
+    box.querySelector(".diagram-fallback").hidden = state !== "failed";
+  }
+
+  function renderSvg(definition, theme) {
+    drawCount += 1;
+    var id = "diagram-" + drawCount;
+    /* The theme travels with each definition, so overlapping draws cannot mix themes up. */
+    var text = '%%{init: {"theme": "' + theme + '"}}%%\n' + definition;
+    return window.mermaid.render(id, text).then(
+      function (result) {
+        return result.svg;
+      },
+      function (error) {
+        var leftover = document.getElementById("d" + id);
+        if (leftover) {
+          leftover.remove();
+        }
+        throw error;
+      }
+    );
+  }
+
+  /* Mermaid draws off screen, so diagrams on hidden slides are drawn too. Each diagram is drawn
+     twice: once in the current theme for the screen, once light for printing. */
+  function drawDiagram(box, theme) {
+    var pre = box.querySelector(".mermaid");
+    var printed = box.querySelector(".mermaid-print");
+    if (pre.definition === undefined) {
+      pre.definition = pre.textContent;
+    }
+    Promise.all([renderSvg(pre.definition, theme), renderSvg(pre.definition, "default")])
+      .then(function (svgs) {
+        pre.innerHTML = svgs[0];
+        printed.innerHTML = svgs[1];
+        setState(box, "drawn");
+      })
+      .catch(function () {
+        setState(box, "failed");
+      });
+  }
+
+  function drawDiagrams() {
+    var boxes = document.querySelectorAll(".diagram");
+    if (!boxes.length) {
+      return;
+    }
+    var theme = isDark() ? "dark" : "default";
+    Array.prototype.forEach.call(boxes, function (box) {
+      if (!window.mermaid) {
+        setState(box, "failed");
+        return;
+      }
+      try {
+        window.mermaid.initialize({ startOnLoad: false, securityLevel: "strict" });
+        drawDiagram(box, theme);
+      } catch (e) {
+        setState(box, "failed");
+      }
+    });
+  }
+
+  /* If Mermaid is slow to load, show the table. A later successful draw replaces it. */
+  window.setTimeout(function () {
+    Array.prototype.forEach.call(document.querySelectorAll(".diagram:not([data-state])"), function (box) {
+      setState(box, "failed");
+    });
+  }, DRAW_TIMEOUT);
+
+  if (document.readyState === "complete") {
+    drawDiagrams();
+  } else {
+    window.addEventListener("load", drawDiagrams);
+  }
+  showFromHash();
+})();
+
+</script>
+</body>
+</html>

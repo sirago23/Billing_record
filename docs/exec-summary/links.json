@@ -1,0 +1,15 @@
+{
+  "docs/exec-summary/SPEC.html": {
+    "sources": [
+      "SPEC.md"
+    ],
+    "url": null
+  },
+  "docs/exec-summary/plan+todo.html": {
+    "sources": [
+      "tasks/plan.md",
+      "tasks/todo.md"
+    ],
+    "url": null
+  }
+}

@@ -4,3 +4,4 @@ token.json
 .tmp/
 node_modules/
 
+session-handoff/
