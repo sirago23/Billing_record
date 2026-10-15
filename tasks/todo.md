@@ -42,12 +42,14 @@ Standard checks used below:
 
 **Acceptance criteria:**
 - [x] Unit tests cover the parser with canned responses: complete, partial (missing fields flagged), malformed (clean error, no throw to caller), BE date to CE.
-- [ ] With user approval, a real run on 3-5 samples from `.tmp/samples/` prints correct amount, currency and date for most of them. Results are noted in this file.
+- [x] With user approval, a real run on 3-5 samples from `.tmp/samples/` prints correct amount, currency and date for most of them. Results are noted in this file.
+  - Run 2026-10-15, model `claude-sonnet-5-5`, 5 samples (2 SCB, 1 Krungsri, 2 Bangkok Bank; 4 to 9 s each). Amount, currency, date and direction correct on 5 of 5, checked by eye against the images. This includes the 2-digit BE year "69" on the Bangkok Bank slips (saved as 2026-10-15). Categories sensible on 5 of 5. Slip ref correct on 4 of 5; on one SCB slip a lowercase "l" was read as capital "I" (look-alike characters, so duplicate matching on slip_ref needs care). All samples were expense, so income direction is still untested.
+  - Two real bugs found and fixed: (1) `claude-sonnet-5-5` rejects a forced `tool_choice` with a 400, so `extract.ts` now uses `auto`; (2) the Bangkok Bank screenshots are PNG files named `.jpeg` and the API rejects a mismatched media type, so `media-type.ts` detects the type from the file bytes (Task 12 must do the same).
 - [x] The API key is read on the server only, from `.env`.
 
 **Verification:**
 - [x] `CHECKS` pass. No real API calls in `npm test`.
-- [ ] Manual: real sample run, reviewed with the user (ask first, it costs credits)
+- [x] Manual: real sample run done (see above). User review of the results is part of Checkpoint A.
 
 **Dependencies:** Task 1
 **Files:** `src/lib/extract/extract.ts`, `src/lib/extract/prompt.ts`, `src/lib/extract/parse.ts`, `scripts/extract-sample.ts`, `tests/unit/extract/parse.test.ts`

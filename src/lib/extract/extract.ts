@@ -65,7 +65,9 @@ export async function extractFromImage(
           input_schema: TOOL_SCHEMA,
         },
       ],
-      tool_choice: { type: "tool", name: TOOL_NAME },
+      // Forcing the tool ({ type: "tool" }) is rejected with a 400 by this model.
+      // The system prompt tells it to call the tool; no call is handled below.
+      tool_choice: { type: "auto" },
       messages: [
         {
           role: "user",

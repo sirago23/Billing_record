@@ -36,7 +36,7 @@ describe("extractFromImage", () => {
     if (result.ok) expect(result.data.fields.amount).toBe("80");
   });
 
-  it("sends the image, the model id and a forced tool call", async () => {
+  it("sends the image, the model id and lets the model choose the tool (forced tool_choice is rejected by claude-sonnet-5-5)", async () => {
     let seen: Record<string, unknown> = {};
     const client = {
       messages: {
@@ -52,10 +52,7 @@ describe("extractFromImage", () => {
     } as unknown as ExtractClient;
     await extractFromImage(image, { client, model: "test-model" });
     expect(seen.model).toBe("test-model");
-    expect(seen.tool_choice).toEqual({
-      type: "tool",
-      name: "record_transaction",
-    });
+    expect(seen.tool_choice).toEqual({ type: "auto" });
     expect(JSON.stringify(seen.messages)).toContain(
       image.data.toString("base64"),
     );
