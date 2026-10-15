@@ -1,9 +1,27 @@
-﻿.env
+# secrets
+.env*
+!.env.example
 credentials.json
 token.json
+
+# scratch and local data
 .tmp/
-node_modules/
-
+data/
 session-handoff/
-
 .playwright-mcp/
+
+# dependencies and build output
+node_modules/
+/.next/
+/out/
+/build
+/coverage
+/test-results/
+/playwright-report/
+*.tsbuildinfo
+next-env.d.ts
+
+# misc
+.DS_Store
+*.pem
+npm-debug.log*

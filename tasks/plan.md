@@ -60,7 +60,7 @@ After T5, these can run in parallel: T6, T7, T8, T9 and T12. In this project the
 ## Task List
 
 ### Phase A: Foundation
-- [ ] Task 1: Scaffold project and tooling
+- [x] Task 1: Scaffold project and tooling
 - [ ] Task 2: Extraction spike (Claude reads a slip)
 - [ ] Task 3: Database schema, migrations and category seed
 

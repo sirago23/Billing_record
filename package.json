@@ -1,0 +1,42 @@
+{
+  "name": "billing-record",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "dev:lan": "next dev -H 0.0.0.0",
+    "build": "next build",
+    "start": "next start",
+    "start:prod": "node -e \"console.log('start:prod: not set up yet (Phase 2)')\"",
+    "hash-password": "node -e \"console.log('hash-password: not set up yet (Phase 2)')\"",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "db:migrate": "node -e \"console.log('db:migrate: not set up yet (Task 3)')\"",
+    "db:generate": "node -e \"console.log('db:generate: not set up yet (Task 3)')\"",
+    "db:seed": "node -e \"console.log('db:seed: not set up yet (Task 3)')\"",
+    "extract:sample": "node -e \"console.log('extract:sample: not set up yet (Task 2)')\"",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "better-sqlite3": "13.0.3",
+    "next": "16.4.1",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1",
+    "@tailwindcss/turbopack": "4",
+    "@types/better-sqlite3": "9.6.0",
+    "@types/node": "24.19.2",
+    "@types/react": "19",
+    "@types/react-dom": "19",
+    "eslint": "9",
+    "eslint-config-next": "16.4.1",
+    "prettier": "3.9.10",
+    "tailwindcss": "4",
+    "typescript": "5",
+    "vitest": "5.0.4"
+  }
+}

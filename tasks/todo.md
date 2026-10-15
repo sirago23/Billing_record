@@ -19,21 +19,21 @@ Standard checks used below:
 
 ## Phase A: Foundation
 
-### - [ ] Task 1: Scaffold project and tooling
+### - [x] Task 1: Scaffold project and tooling
 
 **Description:** Create the Next.js (App Router, TypeScript strict) app in the repo root with Tailwind, ESLint, Prettier, Vitest and Playwright. Add all Phase 1 npm scripts from the spec, `src/lib/config.ts` (reads `DATA_DIR`, default `./data`), `.env.example`, and gitignore entries for `data/` and `.env*` (except `.env.example`). Install `better-sqlite3` and run one smoke query to prove the native module loads on Node 24 and Windows.
 
 **Acceptance criteria:**
-- [ ] `npm run dev` serves a placeholder home page on http://localhost:3000.
-- [ ] Every Phase 1 script in the spec's Commands section exists. Scripts with nothing to run yet exit 0.
-- [ ] `better-sqlite3` loads and runs `select 1` in a Vitest test.
+- [x] `npm run dev` serves a placeholder home page on http://localhost:3000.
+- [x] Every Phase 1 script in the spec's Commands section exists. Scripts with nothing to run yet exit 0.
+- [x] `better-sqlite3` loads and runs `select 1` in a Vitest test.
 
 **Verification:**
-- [ ] `CHECKS` and `BUILD` pass
-- [ ] `git status` shows no `data/`, `.env` or `node_modules/`
+- [x] `CHECKS` and `BUILD` pass
+- [x] `git status` shows no `data/`, `.env` or `node_modules/`
 
 **Dependencies:** None
-**Files:** `package.json`, `tsconfig.json`, `next.config.ts`, `vitest.config.ts`, `playwright.config.ts`, `src/lib/config.ts`, `.env.example`, `.gitignore`, `src/app/layout.tsx`, `src/app/page.tsx`
+**Files:** `package.json`, `tsconfig.json`, `next.config.ts`, `vitest.config.mts`, `playwright.config.ts`, `src/lib/config.ts`, `.env.example`, `.gitignore`, `src/app/layout.tsx`, `src/app/page.tsx`
 **Scope:** M (mostly generated)
 
 ### - [ ] Task 2: Extraction spike (Claude reads a slip)
