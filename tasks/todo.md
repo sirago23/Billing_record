@@ -53,17 +53,17 @@ Standard checks used below:
 **Files:** `src/lib/extract/extract.ts`, `src/lib/extract/prompt.ts`, `src/lib/extract/parse.ts`, `scripts/extract-sample.ts`, `tests/unit/extract/parse.test.ts`
 **Scope:** M
 
-### - [ ] Task 3: Database schema, migrations and category seed
+### - [x] Task 3: Database schema, migrations and category seed
 
 **Description:** Define the Drizzle schema for `records`, `categories` and `fx_rates` as in the spec, generate the first migration, and add a DB client that opens `DATA_DIR/billing.db`. Seed the default income and expense categories, without creating duplicates if the seed runs again.
 
 **Acceptance criteria:**
-- [ ] `npm run db:migrate` then `npm run db:seed` creates the DB with 13 default categories. Running the seed twice still gives 13.
-- [ ] An integration test helper creates a fresh temp DB per test file.
+- [x] `npm run db:migrate` then `npm run db:seed` creates the DB with 13 default categories. Running the seed twice still gives 13.
+- [x] An integration test helper creates a fresh temp DB per test file.
 
 **Verification:**
-- [ ] `CHECKS` pass
-- [ ] Manual: delete `data/`, run migrate and seed, and confirm the file and rows exist
+- [x] `CHECKS` pass
+- [x] Manual: delete `data/`, run migrate and seed, and confirm the file and rows exist
 
 **Dependencies:** Task 1
 **Files:** `src/lib/db/schema.ts`, `src/lib/db/client.ts`, `drizzle.config.ts`, `scripts/seed.ts`, `tests/helpers/test-db.ts`
