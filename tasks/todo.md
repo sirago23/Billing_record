@@ -41,12 +41,12 @@ Standard checks used below:
 **Description:** Build `extractFromImage()` in `src/lib/extract/`. It sends one image to Claude with a tool schema and returns direction, amount, currency, date, counterparty, slip reference and suggested category. The parser validates the output with Zod, marks missing fields, and converts BE years to CE. Add `npm run extract:sample <file>` to run it on a local image and print the result.
 
 **Acceptance criteria:**
-- [ ] Unit tests cover the parser with canned responses: complete, partial (missing fields flagged), malformed (clean error, no throw to caller), BE date to CE.
+- [x] Unit tests cover the parser with canned responses: complete, partial (missing fields flagged), malformed (clean error, no throw to caller), BE date to CE.
 - [ ] With user approval, a real run on 3-5 samples from `.tmp/samples/` prints correct amount, currency and date for most of them. Results are noted in this file.
-- [ ] The API key is read on the server only, from `.env`.
+- [x] The API key is read on the server only, from `.env`.
 
 **Verification:**
-- [ ] `CHECKS` pass. No real API calls in `npm test`.
+- [x] `CHECKS` pass. No real API calls in `npm test`.
 - [ ] Manual: real sample run, reviewed with the user (ask first, it costs credits)
 
 **Dependencies:** Task 1
