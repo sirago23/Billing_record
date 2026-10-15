@@ -1,3 +1,4 @@
+import { currencyExponent } from "../currency.ts";
 import {
   DEFAULT_EXPENSE_CATEGORIES,
   DEFAULT_INCOME_CATEGORIES,
@@ -50,11 +51,23 @@ function parseDirection(value: unknown): Direction | null {
   return value === "income" || value === "expense" ? value : null;
 }
 
-function parseAmount(value: unknown): string | null {
+// A comma is accepted only as a thousands separator ("1,234.50"). A decimal comma
+// ("12,50") would otherwise be read as 1250, so it is rejected and the user types it.
+const THOUSANDS_GROUPED = /^\d{1,3}(,\d{3})+(\.\d+)?$/;
+const MAX_INTEGER_DIGITS = 12; // keeps minor units inside Number.MAX_SAFE_INTEGER
+
+function parseAmount(value: unknown, currency: string | null): string | null {
   const raw = typeof value === "number" ? String(value) : text(value);
   if (raw === null) return null;
-  const cleaned = raw.replace(/[,\s]/g, "");
-  if (!/^\d+(\.\d{1,2})?$/.test(cleaned)) return null;
+  let cleaned = raw.replace(/\s/g, "");
+  if (cleaned.includes(",")) {
+    if (!THOUSANDS_GROUPED.test(cleaned)) return null;
+    cleaned = cleaned.replace(/,/g, "");
+  }
+  const match = /^(\d+)(?:\.(\d+))?$/.exec(cleaned);
+  if (!match || match[1].length > MAX_INTEGER_DIGITS) return null;
+  const maxDecimals = currency === null ? 2 : currencyExponent(currency);
+  if ((match[2]?.length ?? 0) > maxDecimals) return null;
   return Number(cleaned) > 0 ? cleaned : null;
 }
 
@@ -111,10 +124,11 @@ export function parseExtraction(input: unknown): ParseOutcome {
   const warnings: string[] = [];
 
   const direction = parseDirection(raw.direction);
+  const currency = parseCurrency(raw.currency);
   const fields: ExtractedFields = {
     direction,
-    amount: parseAmount(raw.amount),
-    currency: parseCurrency(raw.currency),
+    amount: parseAmount(raw.amount, currency),
+    currency,
     date: parseDate(raw.date, warnings),
     counterparty: text(raw.counterparty),
     slipRef: text(raw.slipRef),

@@ -1,8 +1,8 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { migrate } from "drizzle-orm/better-sqlite3/migrator";
 import { openDb, type Db } from "@/lib/db/client";
+import { runMigrations } from "@/lib/db/migrate";
 
 export type TestDb = { db: Db; cleanup: () => void };
 
@@ -10,7 +10,7 @@ export type TestDb = { db: Db; cleanup: () => void };
 export function createTestDb(): TestDb {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "billing-test-"));
   const handle = openDb(path.join(dir, "test.db"));
-  migrate(handle.db, { migrationsFolder: path.resolve("drizzle") });
+  runMigrations(handle.db);
   return {
     db: handle.db,
     cleanup: () => {

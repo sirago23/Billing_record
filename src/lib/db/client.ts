@@ -21,10 +21,14 @@ export function openDb(file: string): DbHandle {
   return { db: drizzle(sqlite, { schema }), close: () => sqlite.close() };
 }
 
-let shared: DbHandle | undefined;
+// One connection per server process, at DATA_DIR/billing.db. It is kept on
+// globalThis because Next dev reloads modules, which would otherwise open a
+// new handle on every reload.
+const globalForDb = globalThis as typeof globalThis & {
+  billingDb?: DbHandle;
+};
 
-// One connection per server process, at DATA_DIR/billing.db.
 export function getDb(): Db {
-  shared ??= openDb(getConfig().dbPath);
-  return shared.db;
+  globalForDb.billingDb ??= openDb(getConfig().dbPath);
+  return globalForDb.billingDb.db;
 }
