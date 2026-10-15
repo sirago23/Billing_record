@@ -12,7 +12,7 @@ Reviewed commits 93d71e5, 9ba5abf, 40ec4f0. Verdict: no Critical findings.
 | 4 | Raw SDK error text returned to the caller | Fixed. Short fixed messages for timeout, auth, rate limit and other. Only the error name is logged |
 | 5 | DB handle reopened on every Next dev reload | Fixed. Cached on `globalThis` |
 | 6 | No production-safe migrate (drizzle-kit is a dev dependency) | Fixed. `src/lib/db/migrate.ts` and `npm run db:migrate:prod`. Phase 2 `start:prod` should call it |
-| 7 | No DB CHECKs or indexes on `records` | Open. Needs a schema change after the first migration, which the spec says to ask first |
+| 7 | No DB CHECKs or indexes on `records` | Fixed with user approval (schema change). Migration `0001`: CHECKs on amount, currency, direction, fx_source, source; indexes on date, category and the duplicate-check columns. Tests: `tests/integration/db-constraints.test.ts` |
 
 ## Suggestions
 

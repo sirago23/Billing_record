@@ -8,6 +8,13 @@
       "when": 1792053963784,
       "tag": "0000_mighty_leopardon",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1792054365360,
+      "tag": "0001_premium_giant_girl",
+      "breakpoints": true
     }
   ]
 }
