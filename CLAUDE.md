@@ -4,7 +4,10 @@ Local rules for this project only. The parent WAT `CLAUDE.md` in Downloads also 
 
 ## Project
 - Name: Billing record
-- Purpose, stack and commands: not defined yet. Fill in after `/agent-skills:spec` and `/agent-skills:plan`.
+- Purpose: personal web app that reads bank slips and bills with Claude vision, records income and expenses (THB totals), shows charts, exports CSV.
+- Stack: Next.js (App Router, TypeScript strict), SQLite via better-sqlite3 + Drizzle, Zod, Recharts, Tailwind, sharp, Vitest, Playwright.
+- Commands: see `SPEC.md` "Commands". Checks: `npm run lint && npm run typecheck && npm test`.
+- Docs: `SPEC.md`, `tasks/plan.md`, `tasks/todo.md`. Phase 1 is local; Phase 2 is Railway.
 - Repo: https://github.com/sirago23/Billing_record (public, branch `main`).
 
 ## Boundaries

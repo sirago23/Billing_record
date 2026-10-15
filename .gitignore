@@ -5,3 +5,5 @@ token.json
 node_modules/
 
 session-handoff/
+
+.playwright-mcp/
